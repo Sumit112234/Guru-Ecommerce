@@ -1,6 +1,6 @@
 import cartProduct from "../models/cartProduct.js";
 import order from "../models/order.js";
-import Product from "../models/Product.js";
+import Product from "../models/product.js";
 import cloudinary from "cloudinary";
 
 // Configure Cloudinary
