@@ -6,7 +6,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import OtpVerification from './pages/OtpVerification';
 import CheakOutPage from './components/CheakOut'
-import SetNewPassword from './pages/setNewPassword';
+// import SetNewPassword from './pages/setNewPassword';
 import MyOrders from './pages/MyOrders'
 import ProductDetail from './pages/ProductDetail';
 import ShoppingCart from './pages/ShoppingCart';
@@ -119,7 +119,7 @@ function App() {
 
         <Route path="/otp" element={<OtpVerification />} />
         <Route path="/checkout" element={<Protected> < CheakOutPage/></Protected>} />
-        <Route path="/set-password" element={<SetNewPassword/>} />
+        {/* <Route path="/set-password" element={<SetNewPassword/>} /> */}
         <Route path="/myorders" element={<Protected><MyOrders/></Protected>} />
         <Route path="/myaccount" element={<Protected><MyAccount/></Protected>} />
         <Route path="/product-detail/:id" element={<Protected><ProductDetail/></Protected>} />
