@@ -9,11 +9,8 @@ import { clearCart } from "../redux/slices/cartSlice";
 import { createOrders } from "../helper/productFuntionality";
 const CheakOutPage = () => {
 
-
-
-
   const items = useSelector((state) => state.cart.items);
-  // //console.log(items)
+
   const { darkTheme } = useUser();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -28,9 +25,7 @@ const CheakOutPage = () => {
     pincode: "",
   });
 
-  useEffect(()=>{
-    //console.log(selectedAddressIndex)
-  },[])
+  
   const [addresses, setAddresses] = useState([]);
   const [selectedAddressIndex, setSelectedAddressIndex] = useState(-1);
   const [finalItems, setFinalItems] = useState(items);
@@ -67,43 +62,40 @@ const CheakOutPage = () => {
     setSelectedPayment(event.target.id);
   };
 
-  const handelPayment = async() => {
-
-    //console.log(selectedAddressIndex)
-    if(selectedAddressIndex === -1)
-    {
-      toast.info("Please Add Address!")
-      return ;
+  const handelPayment = async () => {
+    if (addresses.length === 0) {
+      toast.info("Please add an address before proceeding!");
+      return;
     }
-
-    if(selectedPayment === 'cod')
-    {
-        try {
-          let data = {
-            Uid : user._id,
-            Pid : '1234',
-            PType : 'COD',
-            status : 'Pending',
-            addressId : addresses[selectedAddressIndex]._id,
-            
-          }
-          await createOrders(data);
-
-        
-          dispatch(clearCart());
-          navigate('/thank-you');
-          setTimeout(()=>{
-            navigate('/myorders');
-          },[4000])
-
-        } catch (e)  {
-          //console.log('some error generated! ', e);
-        }
+  
+    if (selectedAddressIndex === -1) {
+      toast.info("No address selected!");
+      return;
     }
-    else{
-      toast.info("We are not receiving online payments now!")
+  
+    if (selectedPayment === "cod") {
+      try {
+        let data = {
+          Uid: user._id,
+          Pid: "1234",
+          PType: "COD",
+          status: "Pending",
+          addressId: addresses[selectedAddressIndex]._id,
+        };
+        await createOrders(data);
+        dispatch(clearCart());
+        navigate("/thank-you");
+        setTimeout(() => {
+          navigate("/myorders");
+        }, 4000);
+      } catch (e) {
+        console.log("Error:", e);
+      }
+    } else {
+      toast.info("We are not receiving online payments now!");
     }
   };
+  
   useEffect(() => {
 
    fetchAddress();
