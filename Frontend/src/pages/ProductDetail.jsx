@@ -87,8 +87,9 @@ const ProductDetail = () => {
     setSelectedImage(image);
   };
 
-  const handleBuyNow = () => {
-    handleAddToCart();
+  const handleBuyNow = async() => {
+    // handleAddToCart();
+    await addProductToCart(product._id);
     navigate('/checkout');
   };
 
