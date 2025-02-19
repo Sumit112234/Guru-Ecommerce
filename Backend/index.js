@@ -11,11 +11,7 @@ import cookieParser from 'cookie-parser';
 import cartRouter from './routes/cart.js';
 import adminRouter from './routes/admin.js';
 
-// const express = require('express');
-// const cors = require('cors');
-// const { configDotenv } = require('dotenv');
-// const connectDb = require('./database/connectDB');
-// const { default: userRouter } = require('./routes/user');
+
 
 
 
