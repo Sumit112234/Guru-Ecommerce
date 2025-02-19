@@ -18,8 +18,8 @@ import adminRouter from './routes/admin.js';
 const app = express();
 
 app.use(cors({
-    origin: process.env.FRONTEND_URL, // Frontend URL
-    credentials: true, // Allow credentials (cookies)
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
 }));
 app.use(cookieParser());
 app.use(bodyParser.json());
