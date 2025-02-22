@@ -7,6 +7,7 @@ import { useSelector } from 'react-redux';
 import { addProductAPI } from '../../helper/productFuntionality';
 
 // Shared Layout Component with Theme Toggle
+const backendUrl = import.meta.env.VITE_APP_SERVER_URL;
 const ProductLayout = ({ children, title }) => {
   const {darkTheme} = useUser();
   
