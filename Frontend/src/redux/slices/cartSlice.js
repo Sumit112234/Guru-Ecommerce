@@ -23,29 +23,45 @@ const cartSlice = createSlice({
     
       if (existingItem) {
         existingItem.quantity += 1;
-        existingItem.totalPrice += action.payload.price;
+        existingItem.totalPrice += Math.floor(action.payload.price - ((action.payload.price*(action.payload.discount))/100));
       } else {
         state.items.push({
           productId: action.payload, // Use productId for consistency
           quantity: 1,
-          totalPrice: action.payload.price,
+          totalPrice : Math.floor(action.payload.price - ((action.payload.price*(action.payload.discount))/100)),
+         
         });
       }
     
-      state.totalQuantity += 1;
-      state.totalPrice += action.payload.price;
+      // state.totalQuantity += 1;
+      // state.totalPrice += action.payload.price;
     },
     
     removeFromCart(state, action) {
       const itemIndex = state.items.findIndex(
-        (item) => item.productId._id === action.payload.productId
+        (item) => item.productId._id === action.payload._id // Ensure correct ID comparison
       );
     
       if (itemIndex !== -1) {
         const item = state.items[itemIndex];
-        state.totalQuantity -= item.quantity;
-        state.totalPrice -= item.totalPrice;
-        state.items.splice(itemIndex, 1);
+    
+        if (item.quantity > 1) {
+          // Reduce quantity and adjust total price
+          item.quantity -= 1;
+          item.totalPrice -= Math.floor(
+            item.productId.price - (item.productId.price * item.productId.discount) / 100
+          );
+    
+          state.totalQuantity -= 1;
+          state.totalPrice -= Math.floor(
+            item.productId.price - (item.productId.price * item.productId.discount) / 100
+          );
+        } else {
+          // Remove item completely if quantity is 1
+          state.totalQuantity -= item.quantity;
+          state.totalPrice -= item.totalPrice;
+          state.items.splice(itemIndex, 1);
+        }
       }
     },
     

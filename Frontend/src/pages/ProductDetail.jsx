@@ -45,6 +45,7 @@ const ProductDetail = () => {
           productId,
           quantity: 1,
           userId: user._id,
+          price : Math.floor(product.price - ((product.price*(product.discount))/100))
         });
         toast.success(`${product.name} added to the cart!`);
       }
@@ -61,7 +62,7 @@ const ProductDetail = () => {
 
   useEffect(()=>{
     setProduct(AllProducts.find((item) => item._id === id));
-  },[id,product])
+  },[id,AllProducts])
 
   const [stars, setStars] = useState(5);
     
@@ -238,67 +239,35 @@ const ProductDetail = () => {
             variants={itemVariants}
             className="w-full"
           >
-            <div>
-              <motion.h3 
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="text-lg sm:text-xl md:text-2xl font-bold"
-              >
-                {product.name || 'SunProtect Sunscreen SPF'}
-              </motion.h3>
-              <div className="flex items-center gap-3 mt-1">
-                <div className="flex items-center gap-1">
-                  <p className="text-base">{product.reviews ? product.reviews[0]?.ratings : 3}</p>
-                  <div className="flex">
-                    {product.reviews && product.reviews.map((ele, idx) => (
-                      <motion.svg 
-                        key={idx} 
-                        className="w-4 h-4 fill-purple-600" 
-                        viewBox="0 0 14 13"
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ delay: 0.1 * idx }}
-                      >
-                        <path d="M7 0L9.4687 3.60213L13.6574 4.83688L10.9944 8.29787L11.1145 12.6631L7 11.2L2.8855 12.6631L3.00556 8.29787L0.342604 4.83688L4.5313 3.60213L7 0Z" />
-                      </motion.svg>
-                    ))}
-                  </div>
+          
+            <motion.h3 className="text-2xl font-bold">{product.name}</motion.h3>
+            
+            <div className="flex items-center gap-3 mt-2">
+              <div className="flex items-center">
+                {renderStars(product.ratings)}
+                <span className="ml-2">{product.ratings}</span>
+              </div>
+              <span>|</span>
+              <span>{product.reviews.length} Reviews</span>
+            </div>
+
+            <motion.div className="mt-4">
+              <p>{product.description}</p>
+            </motion.div>
+
+            <motion.div className="flex items-center gap-4 mt-4">
+              <strike className="text-red-700">₹{product.price}</strike>
+              <h4 className="text-3xl font-bold">₹{Math.floor(product.price - ((product.price*(product.discount))/100))}</h4>
+              {product.discount > 0 && (
+                <div className="bg-purple-600 px-2 py-1">
+                  <span className="text-white">save {product.discount}%</span>
                 </div>
-                <span className="text-gray-500">|</span>
-                <p className="text-sm">{product.reviews ? product.reviews.length : 0} Reviews</p>
-              </div>
-              <motion.div 
-                className="mt-2"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3 }}
-              >
-                <p className="text-sm md:text-base">{product.description}</p>
-              </motion.div>
+              )}
+            </motion.div>
 
-              <motion.div 
-                className="flex items-center flex-wrap gap-2 mt-4"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 }}
-              >
-                <p className="text-base">
-                  <strike>${16}</strike>
-                </p>
-                <h4 className="text-purple-800 text-2xl sm:text-3xl font-bold">${product.price}</h4>
-                <motion.div 
-                  className="flex py-1 px-2 bg-purple-600 font-semibold !ml-4"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <span className="text-white text-sm">save {product.discount}%</span>
-                </motion.div>
-              </motion.div>
-
-              <div>
-                <h4 className="text-base mt-4 font-semibold">Net Wt: 100G</h4>
-              </div>
+            <div className="mt-4">
+              <p>Unit: {product.unit}</p>
+              <p>Stock: {product.stock} available</p>
             </div>
 
             <hr className={`my-6 ${darkTheme ? 'border-gray-700' : 'border-gray-300'}`} />
@@ -639,8 +608,9 @@ const ProductDetail = () => {
                           <div className="flex flex-wrap justify-between gap-2 mt-2">
                             <div className="flex flex-wrap justify-between gap-2 mt-2">
                               <div className="flex gap-2">
-                                <h6 className="text-sm sm:text-base font-bold">${product.price}</h6>
-                                <h6 className="text-sm sm:text-base text-gray-500 line-through">${product.originalPrice}</h6>
+                                
+                                <h6 className="text-sm sm:text-base font-bold">₹{Math.floor(product.price - ((product.price*(product.discount))/100))}</h6>
+                                <h6 className="text-sm sm:text-base text-gray-500 line-through">₹{product.price}</h6>
                               </div>
                               <div className="flex items-center gap-0.5">
                                 {renderStars(product.ratings)}

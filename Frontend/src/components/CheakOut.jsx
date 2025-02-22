@@ -106,15 +106,22 @@ const CheakOutPage = () => {
       (total, item) => total + item.productId.price * item.quantity,
       0
     );
-    const discount = (sub_total * discountRate) / 100;
-    const tax = ((sub_total - discount) * taxRate) / 100;
+    const discount = items.reduce(
+      (total, item) =>
+        total + item.productId.price * item.quantity * (item.productId.discount / 100),
+      0
+    );
+   
+    
+    // const tax = ((sub_total - discount) * taxRate) / 100;
+    const tax = 0;
     const total = sub_total - discount + tax;
   
     setFinanceData({
-      tax: " ₹"+tax.toFixed(2),
-      sub_total:" ₹" +sub_total.toFixed(2),
-      discount:" ₹"+ discount.toFixed(2),
-      total: " ₹"+total.toFixed(2),
+      tax: tax.toFixed(2),
+      sub_total:sub_total.toFixed(2),
+      discount: discount.toFixed(2),
+      total: Math.floor(total),
     });
   }, [items]);
   
@@ -493,18 +500,18 @@ const CheakOutPage = () => {
         <ul className="mt-6 space-y-3">
           <li className="flex flex-wrap gap-4 text-sm">
             Sub total{" "}
-            <span className="ml-auto font-bold">{financeData.sub_total}</span>
+            <span className="ml-auto font-bold">₹{financeData.sub_total}</span>
           </li>
           <li className="flex flex-wrap gap-4 text-sm">
             Discount (20%){" "}
-            <span className="ml-auto font-bold">{financeData.discount}</span>
+            <span className="ml-auto font-bold">₹{financeData.discount}</span>
           </li>
           <li className="flex flex-wrap gap-4 text-sm">
-            Tax <span className="ml-auto font-bold">{financeData.tax}</span>
+            Tax <span className="ml-auto font-bold">₹{financeData.tax}</span>
           </li>
           <hr />
           <li className="flex flex-wrap gap-4 text-base font-bold">
-            Total <span className="ml-auto">{financeData.total}</span>
+            Total <span className="ml-auto">₹{financeData.total}</span>
           </li>
         </ul>
       </div>

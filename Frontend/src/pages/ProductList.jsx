@@ -314,31 +314,59 @@ const ProductList = () => {
                             darkTheme ? "bg-gray-700" : "bg-white"
                           }`}
                         >
-                          <Link to={`/product-detail/${product._id}`} className="block relative overflow-hidden group">
-                            <motion.div
-                              className="h-40 overflow-hidden"
-                              whileHover={{ scale: 1.1 }}
-                              transition={{ duration: 0.5 }}
-                            >
-                              <img
-                                src={product?.images[0] || "https://via.placeholder.com/150"}
-                                alt={product.name}
-                                className="h-full w-full object-cover"
-                              />
-                              <motion.div
-                                className="absolute inset-0 bg-black bg-opacity-20"
-                                initial={{ opacity: 0 }}
-                                whileHover={{ opacity: 1 }}
-                                transition={{ duration: 0.3 }}
-                              >
-                                <div className="h-full flex items-center justify-center">
-                                  <span className="text-white bg-purple-700 bg-opacity-70 px-4 py-2 rounded-full font-medium">
-                                    View Details
-                                  </span>
-                                </div>
-                              </motion.div>
-                            </motion.div>
-                          </Link>
+              {user ? (
+                <Link to={`/product-detail/${product._id}`} className="block relative overflow-hidden group">
+                  <motion.div
+                    className="h-40 overflow-hidden"
+                    whileHover={{ scale: 1.1 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <img
+                      src={product?.images[0] || "https://via.placeholder.com/150"}
+                      alt={product.name}
+                      className="h-full w-full object-cover"
+                    />
+                    <motion.div
+                      className="absolute inset-0 bg-black bg-opacity-20"
+                      initial={{ opacity: 0 }}
+                      whileHover={{ opacity: 1 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <div className="h-full flex items-center justify-center">
+                        <span className="text-white bg-purple-700 bg-opacity-70 px-4 py-2 rounded-full font-medium">
+                          View Details
+                        </span>
+                      </div>
+                    </motion.div>
+                  </motion.div>
+                </Link>
+              ) : (
+                <Link to={'/login'} className="block relative overflow-hidden group">
+                  <motion.div
+                    className="h-40 overflow-hidden cursor-pointer"
+                    whileHover={{ scale: 1.1 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <img
+                      src={product?.images[0] || "https://via.placeholder.com/150"}
+                      alt={product.name}
+                      className="h-full w-full object-cover"
+                    />
+                    <motion.div
+                      className="absolute inset-0 bg-black bg-opacity-50"
+                      initial={{ opacity: 0 }}
+                      whileHover={{ opacity: 1 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <div className="h-full flex items-center justify-center">
+                        <span className="text-white bg-red-600 bg-opacity-90 px-4 py-2 rounded-full font-medium text-center">
+                          You need to login first!
+                        </span>
+                      </div>
+                    </motion.div>
+                  </motion.div>
+                </Link>
+              )}
                           <div className="p-3 flex-grow">
                             <motion.h3
                               className={`text-xl font-bold mb-2 ${darkTheme ? "text-purple-400" : "text-black"}`}
@@ -352,7 +380,7 @@ const ProductList = () => {
                               whileHover={{ scale: 1.05 }}
                               transition={{ type: "spring", stiffness: 300, damping: 10 }}
                             >
-                              ₹{product.price}
+                              ₹{Math.floor(product.price - ((product.price*(product.discount))/100))}
                             </motion.h3>
                             <div className="flex flex-col gap-3">
                               {cartItem ? (

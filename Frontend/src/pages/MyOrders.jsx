@@ -21,7 +21,7 @@ const MyOrders = () => {
   // Process order data
   useEffect(() => {
 
-    // //console.log("orderedData coming : ", OrderedProducts)
+    console.log("orderedData coming : ", OrderedProducts)
     const processedOrders = OrderedProducts.flatMap((order) =>
       order.product_details.map((product) => ({
         orderId: order.orderId,
@@ -30,7 +30,7 @@ const MyOrders = () => {
           month: '2-digit',
           day: '2-digit'
         }),
-        price: product.price * product.quantity,
+        price:Math.floor(product.price * product.quantity - ((product.price * product.quantity * product.productId[0].discount)/100)),
         status: order.delivery_status || "confirmed",
         productName: product.name,
         productId: product.productId[0]?._id,

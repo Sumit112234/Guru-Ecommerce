@@ -19,6 +19,7 @@ const ShoppingCart = ({ toggleMenuIcon, setToggleMenuIcon }) => {
   const [cartItems, setCartItems] = useState([]);
   const [promoCode, setPromoCode] = useState("");
   const [discount, setDiscount] = useState(0);
+  const [totalPrice, setTotalPrice] = useState(0);
   const items = useSelector((state) => state.cart.items);
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user.user);
@@ -49,14 +50,34 @@ const ShoppingCart = ({ toggleMenuIcon, setToggleMenuIcon }) => {
 
   useEffect(() => {
     setCartItems(items);
-  }, [items,dispatch]);
+    console.log('dispatch');
+    console.log(items)
+    const subtotal = items.reduce(
+      (total, item) => total + item.productId.price * item.quantity,
+      0
+    );
+  
+    // Calculate Total Discount
+    const totalDisc = items.reduce(
+      (total, item) =>
+        total + item.productId.price * item.quantity * (item.productId.discount / 100),
+      0
+    );
+  
+    setDiscount(Math.floor(totalDisc)); // Store total discount in state
+  
+    // Final Total Price after Discount
+    const finalTotal = subtotal - totalDisc + 100; // Assuming 100 is the shipping charge
+  
+    setTotalPrice(Math.floor(finalTotal)); 
+  }, [items]);
 
   const handleRemoveItem = async (productId) => {
     try {
-      await removeFromCartFunc({ productId, userId });
+    
       dispatch(removeFromCart({ _id: productId }));
-      // setCartItems(useSelector((state) => state.cart.items));
-      setCartItems(items)
+      await removeFromCartFunc({ productId, userId });
+      // setCartItems(items)
 
     } catch (error) {
       console.error("Error removing item", error);
@@ -68,18 +89,36 @@ const ShoppingCart = ({ toggleMenuIcon, setToggleMenuIcon }) => {
 
       const item = items.find((i) => i.productId._id === productId);
       if (item) {
+
         const newQuantity = item.quantity + qty;
+        // console.log(newQuantity)
         if (newQuantity <= 0) {
-          dispatch(removeFromCart({ _id: productId }));
-          await removeFromCartFunc({ productId, userId });
+          await handleRemoveItem(productId);
+          // dispatch(removeFromCart({ _id: productId }));
+          // await removeFromCartFunc({ productId, userId });
         } else {
+          dispatch(updateQuantity({ productId, amount: qty }));
           await updateCartFunc({
             productId,
-            quantity: newQuantity,
+            quantity: qty,
             userId,
           });
+          // console.log(cartItems.map((item) => {
+          //   if (item.productId._id === productId) {
+          //     console.log(item.productId.quantity ,qty)
+          //     return {
+          //       ...item, // Copy existing properties
+          //       productId: {
+          //         ...item.productId, // Copy existing productId properties
+          //         quantity: item.productId.quantity + qty, // Update quantity
+          //       },
+          //     };
+          //   } else {
+          //     return item; // Return the original item if no match
+          //   }
+          // }));
           
-          dispatch(updateQuantity({ productId, amount: qty }));
+          
           
         }
       }
@@ -97,12 +136,16 @@ const ShoppingCart = ({ toggleMenuIcon, setToggleMenuIcon }) => {
   };
 
   const calculateTotal = () => {
+
+
     const subtotal = items.reduce(
       (total, item) => total + item.productId.price * item.quantity,
       0
     );
-    const shipping = 2.0;
-    const tax = 4.0;
+    
+  
+    const shipping = 100.0;
+    const tax = 0.00;
     const discountAmount = (subtotal * discount) / 100;
     return subtotal + shipping + tax - discountAmount;
   };
@@ -197,7 +240,7 @@ const ShoppingCart = ({ toggleMenuIcon, setToggleMenuIcon }) => {
                       </div>
                     </div>
                     <div className="ml-auto">
-                      <h4>₹{item.productId.price * item.quantity}</h4>
+                      <h4>₹{Math.floor(item.productId.price - ((item.productId.price*(item.productId.discount))/100)) * item.quantity}</h4>
                     </div>
                   </div>
                 );
@@ -233,16 +276,16 @@ const ShoppingCart = ({ toggleMenuIcon, setToggleMenuIcon }) => {
           </div> */}
           <ul className="mt-4 space-y-1">
             <li className="flex flex-wrap gap-4 text-base">
-              Discount <span className="ml-auto font-bold">${discount}</span>
+             Total Discount <span className="ml-auto font-bold">₹{discount}</span>
             </li>
             <li className="flex flex-wrap gap-4 text-base">
-              Shipping <span className="ml-auto font-bold">$2.00</span>
+              Shipping <span className="ml-auto font-bold">₹100</span>
             </li>
             <li className="flex flex-wrap gap-4 text-base">
-              Tax <span className="ml-auto font-bold">$4.00</span>
+              Tax <span className="ml-auto font-bold">₹0.00</span>
             </li>
             <li className="flex flex-wrap gap-4 text-base font-bold">
-              Total <span className="ml-auto">${calculateTotal().toFixed(2)}</span>
+              Total <span className="ml-auto">₹{totalPrice}</span>
             </li>
           </ul>
           <div  onClick={toggleMenu} className="mt-5 flex space-x-4 ">
