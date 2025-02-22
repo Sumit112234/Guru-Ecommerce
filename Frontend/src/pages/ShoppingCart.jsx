@@ -159,7 +159,7 @@ const ShoppingCart = ({ toggleMenuIcon, setToggleMenuIcon }) => {
   return (
     <div
     className={`${
-      toggleMenuIcon === "close" ? "translate-x-0 shadow-lg shadow-black" : "translate-x-full"
+      toggleMenuIcon === "close" ? "translate-x-0  shadow-lg shadow-black" : "translate-x-full hidden sm:block"
     } font-sans w-screen sm:w-fit sm:max-w-96  z-50 fixed sm:top-0 sm:right-0 ${
       darkTheme ? "bg-gray-800 text-white" : "bg-gray-100 text-gray-800"
     } transition-transform duration-500 ease-in-out overflow-x-hidden`}
@@ -184,7 +184,7 @@ const ShoppingCart = ({ toggleMenuIcon, setToggleMenuIcon }) => {
               <span>Please add some items</span>
             </div>
           ) : (
-            <div className="sm:h-72 overflow-y-scroll flex flex-col gap-4">
+            <div className="h-96 sm:h-72  overflow-y-scroll flex flex-col gap-4">
               {cartItems.map((item) => {
                 return (
                   <div

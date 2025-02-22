@@ -5,11 +5,14 @@ import {
 import { useUser } from '../../context/userContext';
 import { useSelector } from 'react-redux';
 import { addProductAPI } from '../../helper/productFuntionality';
+import { toast } from 'react-toastify';
+
 
 // Shared Layout Component with Theme Toggle
 const backendUrl = import.meta.env.VITE_APP_SERVER_URL;
 const ProductLayout = ({ children, title }) => {
   const {darkTheme} = useUser();
+  
   
   return (
     <div 
@@ -33,6 +36,7 @@ const ProductLayout = ({ children, title }) => {
 
 // Add Product Page
 const AddProductPage = () => {
+  const [loading, setLoading] = useState(false);
   const [productData, setProductData] = useState({
     name: '',
     category: '',
@@ -194,10 +198,9 @@ const AddProductPage = () => {
             })
             .catch(error => console.error("Error converting base64 to file:", error));
     });
-   setTimeout(() => {
-    //console.log(formData);
-   }, 3000);
+  
     setTimeout(async () => {
+      setLoading(true);
         try {
             const response = await fetch(`${backendUrl}product/add-product`, {
                 method: "POST",
@@ -206,22 +209,18 @@ const AddProductPage = () => {
 
             const data = await response.json();
             if (response.ok) {
-                alert("Product added successfully!");
-                // setProductData({
-                //     name: "",
-                //     category: "",
-                //     unit: "",
-                //     stock: "",
-                //     price: "",
-                //     discount: "",
-                //     description: "",
-                //     images: []
-                // });
+                toast.success("Product added successfully!");
+                setProductData({
+                    images: []
+                });
             } else {
                 alert(`Error: ${data.message}`);
             }
         } catch (error) {
             console.error("Error submitting product:", error);
+        }
+        finally{
+          setLoading(false);
         }
     }, 1000); // Delay to ensure all images are converted
 };
@@ -468,7 +467,7 @@ const AddProductPage = () => {
 
           {/* Submit Button */}
           <div className="flex justify-end">
-            <button
+            {/* <button
               type="submit"
               className="flex items-center gap-2 px-6 py-2 
                 bg-purple-600 text-white rounded-md 
@@ -476,7 +475,22 @@ const AddProductPage = () => {
             >
               <Save size={20} />
               Save Product
-            </button>
+            </button> */}
+            <button
+                type="submit"
+                className={`flex items-center gap-2 px-6 py-2 
+                bg-purple-600 text-white rounded-md 
+                hover:bg-purple-700 transition-colors ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                 {loading ? (
+                  <div className="inline-block h-6 w-6 animate-spin rounded-full border-b-2 border-gray-900 border-t-2 "></div>
+                ) : (
+                  <div className='flex '>
+                    <Save size={20} className='mr-2' />
+                    Save Product
+                  </div>
+               )}
+              </button>
           </div>
         </form>
       </div>
