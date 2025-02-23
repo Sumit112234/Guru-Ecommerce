@@ -1,34 +1,27 @@
 // import { useAuth } from "@/context/userContext";
-import React, { useEffect, useState } from "react";
-import { useNavigate , Link } from 'react-router-dom';
+import React, { useState } from "react";
+import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch } from "react-redux";
-import { addUser } from "../redux/slices/userSlice";
 import { toast } from "react-toastify";
-
-
-
-
+import { motion } from "framer-motion";
+import { useUser } from "../context/userContext";
 
 const SignupForm = () => {
+
+  const { darkTheme } = useUser();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    confirmPassword: "",
     password: "",
+    confirmPassword: "",
     termsAccepted: false,
   });
+
   const navigate = useNavigate();
-  // const { signup,user, isAuthenticated } = useAuth();
-
-  // useEffect(()=>{
-  //   //console.log("user from signup : ", user);
-  // },[])
-
+  const dispatch = useDispatch();
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const dispatch = useDispatch();
-  const backendUrl = import.meta.env.VITE_APP_SERVER_URL;   
-
+  const backendUrl = import.meta.env.VITE_APP_SERVER_URL;
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -44,195 +37,296 @@ const SignupForm = () => {
     if (!formData.email.trim()) newErrors.email = "Email is required";
     if (!/^\S+@\S+\.\S+$/.test(formData.email))
       newErrors.email = "Enter a valid email address";
-    if (!formData.confirmPassword.trim()) newErrors.confirmPassword = "confirmPassword number is required";
-    if (formData.confirmPassword !== formData.password)
-      newErrors.confirmPassword = "Password do not match!";
     if (!formData.password.trim()) newErrors.password = "Password is required";
+    if (!formData.confirmPassword.trim()) 
+      newErrors.confirmPassword = "Please confirm your password";
+    if (formData.confirmPassword !== formData.password)
+      newErrors.confirmPassword = "Passwords do not match!";
     if (!formData.termsAccepted)
       newErrors.termsAccepted = "You must accept the terms and conditions";
     return newErrors;
   };
 
-  const handleSubmit = async(e) => {
-
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true)
     const validationErrors = validateForm();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
     } else {
+      setLoading(true);
       try {
-         
-            let loginFunc = await fetch(`${backendUrl}user/register`,{
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify(formData)
-            });
-        
-            let res = await loginFunc.json();
-            if(res.status)
-            {
-              // dispatch(addUser(res.user));
-              navigate('/login')
-              toast.success('login here');
-            }
-            else{
-              toast.error(res.message);
-            } 
-            } catch (e) {
-              toast.error("some error occured!");
-            }
-            finally{
-              setLoading(false);
-            }
-        
-        
-      //console.log("Form Submitted:", formData);
-      // let res = await signup(formData);
-      // navigate('/');
-      setErrors({});
+        let loginFunc = await fetch(`${backendUrl}user/register`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formData)
+        });
+
+        let res = await loginFunc.json();
+        if (res.status) {
+          navigate('/login');
+          toast.success('Account created! Please login.');
+        } else {
+          toast.error(res.message);
+        }
+      } catch (e) {
+        toast.error("Registration failed. Please try again.");
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
-  // useEffect(()=>{
-  //   if(isAuthenticated)
-  //       navigate('/dashboard');
-  // },[user, isAuthenticated])
   return (
-    <div className="font-[sans-serif] bg-white max-w-4xl flex items-center mx-auto md:h-screen p-4">
-      <div className="grid md:grid-cols-3 items-center shadow-[0_2px_10px_-3px_rgba(6,81,237,0.3)] rounded-xl overflow-hidden">
-        <div className="max-md:order-1 flex flex-col justify-center space-y-16 max-md:mt-16 min-h-full bg-gradient-to-r from-gray-900 to-gray-700 lg:px-8 px-4 py-4">
-          <div>
-            <h4 className="text-white text-lg font-semibold">Create Your Account</h4>
-            <p className="text-[13px] text-gray-300 mt-3 leading-relaxed">
-              Welcome to our registration page! Get started by creating your account.
-            </p>
-          </div>
-          <div>
-            <h4 className="text-white text-lg font-semibold">Simple & Secure Registration</h4>
-            <p className="text-[13px] text-gray-300 mt-3 leading-relaxed">
-              Our registration process is designed to be straightforward and secure.
-            </p>
-          </div>
+    <div className={`min-h-screen flex items-center justify-center p-6 
+      ${darkTheme 
+        ? 'bg-gray-900 text-gray-100' 
+        : 'bg-gradient-to-br from-purple-50 to-white text-gray-800'}`}>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-6xl">
+        
+        <div className="grid lg:grid-cols-3 gap-8">
+          <motion.div
+            initial={{ x: -50, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className={`lg:col-span-2 p-8 rounded-2xl shadow-2xl backdrop-blur-sm
+              ${darkTheme 
+                ? 'bg-gray-800/50 border border-gray-700' 
+                : 'bg-white/70 border border-purple-100'}`}>
+            
+            <motion.div
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="text-center mb-8">
+              <h2 className={`text-3xl font-bold mb-2 
+                ${darkTheme ? 'text-white' : 'text-purple-900'}`}>
+                Create Your Account
+              </h2>
+              <p className={`
+                ${darkTheme ? 'text-gray-400' : 'text-purple-600'}`}>
+                Join us and start your journey
+              </p>
+            </motion.div>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <motion.div
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.4 }}
+                className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className={`block text-sm font-medium 
+                    ${darkTheme ? 'text-gray-300' : 'text-purple-700'}`}>
+                    Full Name
+                  </label>
+                  <input
+                    name="name"
+                    type="text"
+                    value={formData.name}
+                    onChange={handleChange}
+                    className={`w-full px-4 py-3 rounded-lg transition-all duration-200
+                      ${darkTheme 
+                        ? 'bg-gray-700 border-gray-600 focus:border-purple-500 text-white' 
+                        : 'bg-purple-50 border-purple-100 focus:border-purple-500'}
+                      ${errors.name ? 'border-red-500' : ''}`}
+                    placeholder="Enter your name"
+                  />
+                  {errors.name && 
+                    <span className="text-red-500 text-xs">{errors.name}</span>
+                  }
+                </div>
+
+                <div className="space-y-2">
+                  <label className={`block text-sm font-medium 
+                    ${darkTheme ? 'text-gray-300' : 'text-purple-700'}`}>
+                    Email Address
+                  </label>
+                  <input
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    className={`w-full px-4 py-3 rounded-lg transition-all duration-200
+                      ${darkTheme 
+                        ? 'bg-gray-700 border-gray-600 focus:border-purple-500 text-white' 
+                        : 'bg-purple-50 border-purple-100 focus:border-purple-500'}
+                      ${errors.email ? 'border-red-500' : ''}`}
+                    placeholder="Enter your email"
+                  />
+                  {errors.email && 
+                    <span className="text-red-500 text-xs">{errors.email}</span>
+                  }
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label className={`block text-sm font-medium 
+                    ${darkTheme ? 'text-gray-300' : 'text-purple-700'}`}>
+                    Password
+                  </label>
+                  <input
+                    name="password"
+                    type="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    className={`w-full px-4 py-3 rounded-lg transition-all duration-200
+                      ${darkTheme 
+                        ? 'bg-gray-700 border-gray-600 focus:border-purple-500 text-white' 
+                        : 'bg-purple-50 border-purple-100 focus:border-purple-500'}
+                      ${errors.password ? 'border-red-500' : ''}`}
+                    placeholder="Create password"
+                  />
+                  {errors.password && 
+                    <span className="text-red-500 text-xs">{errors.password}</span>
+                  }
+                </div>
+
+                <div className="space-y-2">
+                  <label className={`block text-sm font-medium 
+                    ${darkTheme ? 'text-gray-300' : 'text-purple-700'}`}>
+                    Confirm Password
+                  </label>
+                  <input
+                    name="confirmPassword"
+                    type="password"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    className={`w-full px-4 py-3 rounded-lg transition-all duration-200
+                      ${darkTheme 
+                        ? 'bg-gray-700 border-gray-600 focus:border-purple-500 text-white' 
+                        : 'bg-purple-50 border-purple-100 focus:border-purple-500'}
+                      ${errors.confirmPassword ? 'border-red-500' : ''}`}
+                    placeholder="Confirm password"
+                  />
+                  {errors.confirmPassword && 
+                    <span className="text-red-500 text-xs">{errors.confirmPassword}</span>
+                  }
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.6 }}
+                className="space-y-4">
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    name="termsAccepted"
+                    checked={formData.termsAccepted}
+                    onChange={handleChange}
+                    className="w-4 h-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                  />
+                  <span className={`ml-2 text-sm
+                    ${darkTheme ? 'text-gray-300' : 'text-purple-700'}`}>
+                    I accept the{" "}
+                    <Link to="/terms&condition" 
+                      className={`font-medium hover:underline
+                        ${darkTheme ? 'text-purple-400' : 'text-purple-600'}`}>
+                      Terms and Conditions
+                    </Link>
+                  </span>
+                </label>
+                {errors.termsAccepted && 
+                  <span className="text-red-500 text-xs block">{errors.termsAccepted}</span>
+                }
+
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="submit"
+                  disabled={loading}
+                  className={`w-full py-3 px-4 rounded-lg font-medium transition-all duration-200
+                    ${darkTheme 
+                      ? 'bg-purple-600 hover:bg-purple-700 text-white' 
+                      : 'bg-purple-600 hover:bg-purple-700 text-white'}
+                    ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                  {loading ? (
+                    <div className="flex items-center justify-center">
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"/>
+                    </div>
+                  ) : (
+                    'Create Account'
+                  )}
+                </motion.button>
+
+                <p className={`text-center text-sm
+                  ${darkTheme ? 'text-gray-400' : 'text-purple-600'}`}>
+                  Already have an account?{" "}
+                  <Link to="/login" 
+                    className={`font-medium hover:underline
+                      ${darkTheme ? 'text-purple-400' : 'text-purple-700'}`}>
+                    Sign in
+                  </Link>
+                </p>
+              </motion.div>
+            </form>
+          </motion.div>
+
+          <motion.div
+            initial={{ x: 50, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ delay: 0.7 }}
+            className={`p-8 rounded-2xl flex flex-col justify-between
+              ${darkTheme 
+                ? 'bg-gray-800 text-white' 
+                : 'bg-purple-600 text-white'}`}>
+            <div className="space-y-6">
+              <h3 className="text-2xl font-bold">Welcome to Our Platform</h3>
+              <p className="text-sm opacity-90">
+                Join thousands of users who trust our platform for their needs. 
+                Create your account today and unlock all features.
+              </p>
+            </div>
+
+            <div className="space-y-6 mt-8">
+              <div className="flex items-center space-x-4">
+                <div className={`p-3 rounded-full 
+                  ${darkTheme ? 'bg-purple-600' : 'bg-white/20'}`}>
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <h4 className="font-semibold">Secure & Private</h4>
+                  <p className="text-sm opacity-90">Your data is safe with us</p>
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-4">
+                <div className={`p-3 rounded-full 
+                  ${darkTheme ? 'bg-purple-600' : 'bg-white/20'}`}>
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
+                      d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                <div>
+                  <h4 className="font-semibold">Lightning Fast</h4>
+                  <p className="text-sm opacity-90">Quick and easy setup</p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
         </div>
-
-        <form className="md:col-span-2 w-full py-6 px-6 sm:px-16" onSubmit={handleSubmit}>
-          <div className="mb-6">
-            <h3 className="text-gray-800 text-2xl font-bold">Create an account</h3>
-          </div>
-
-          <div className="space-y-6">
-            <div>
-              <label className="text-gray-800 text-sm mb-2 block">Name</label>
-              <input
-                name="name"
-                type="text"
-                className={`text-gray-800 bg-white border w-full text-sm px-4 py-2.5 rounded-md outline-blue-500 ${
-                  errors.name ? "border-red-500" : "border-gray-300"
-                }`}
-                placeholder="Enter name"
-                value={formData.name}
-                onChange={handleChange}
-              />
-              {errors.name && <p className="text-red-500 text-xs">{errors.name}</p>}
-            </div>
-
-            <div>
-              <label className="text-gray-800 text-sm mb-2 block">Email Id</label>
-              <input
-                name="email"
-                type="email"
-                className={`text-gray-800 bg-white border w-full text-sm px-4 py-2.5 rounded-md outline-blue-500 ${
-                  errors.email ? "border-red-500" : "border-gray-300"
-                }`}
-                placeholder="Enter email"
-                value={formData.email}
-                onChange={handleChange}
-              />
-              {errors.email && <p className="text-red-500 text-xs">{errors.email}</p>}
-            </div>
-
-           
-
-            <div>
-              <label className="text-gray-800 text-sm mb-2 block">Password</label>
-              <input
-                name="password"
-                type="password"
-                className={`text-gray-800 bg-white border w-full text-sm px-4 py-2.5 rounded-md outline-blue-500 ${
-                  errors.password ? "border-red-500" : "border-gray-300"
-                }`}
-                placeholder="Enter password"
-                value={formData.password}
-                onChange={handleChange}
-              />
-              {errors.password && <p className="text-red-500 text-xs">{errors.password}</p>}
-            </div>
-            <div>
-              <label className="text-gray-800 text-sm mb-2 block">Confirm Password</label>
-              <input
-                name="confirmPassword"
-                type="text"
-                className={`text-gray-800 bg-white border w-full text-sm px-4 py-2.5 rounded-md outline-blue-500 ${
-                  errors.confirmPassword ? "border-red-500" : "border-gray-300"
-                }`}
-                placeholder="Confirm Password "
-                value={formData.confirmPassword}
-                onChange={handleChange}
-              />
-              {errors.confirmPassword && <p className="text-red-500 text-xs">{errors.confirmPassword}</p>}
-            </div>
-
-            <div className="flex items-center">
-              <input
-                id="termsAccepted"
-                name="termsAccepted"
-                type="checkbox"
-                className="h-4 w-4 shrink-0 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                checked={formData.termsAccepted}
-                onChange={handleChange}
-              />
-              <label htmlFor="termsAccepted" className="ml-3 block text-sm text-gray-800">
-                I accept the{" "}
-                <Link to={'/terms&condition'} className="text-blue-600 font-semibold hover:underline ml-1">
-                  Terms and Conditions
-                </Link>
-              </label>
-            </div>
-            {errors.termsAccepted && (
-              <p className="text-red-500 text-xs">{errors.termsAccepted}</p>
-            )}
-          </div>
-
-          <div className="!mt-12">
-          <button
-                type="submit"
-                className={`w-full shadow-xl py-3 px-4 text-sm tracking-wide rounded-lg text-white bg-gray-600 hover:bg-gray-700 focus:outline-none ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-              >
-                 {loading ? (
-                  <div className="inline-block h-6 w-6 animate-spin rounded-full border-b-2 border-gray-900 border-t-2 "></div>
-                ) : (
-                  "Create an account"
-                )}
-              </button>
-          </div>
-
-          <p className="text-gray-800 text-sm mt-6 text-center">
-            Already have an account?{" "}
-            <Link to={'/login'} className="text-blue-600 font-semibold hover:underline ml-1">
-              Login here
-            </Link>
-          </p>
-        </form>
-      </div>
+      </motion.div>
     </div>
   );
 };
 
 export default SignupForm;
-
 
 // import React, { useState } from "react";
 // import { useDispatch } from "react-redux";

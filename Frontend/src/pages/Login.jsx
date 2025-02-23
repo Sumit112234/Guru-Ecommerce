@@ -1,11 +1,14 @@
-// import { useAuth } from "@/context/userContext";
-import React, { useEffect, useState } from "react";
-import { useNavigate , Link } from 'react-router-dom';
+import React, { useState } from "react";
+import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch } from "react-redux";
 import { addUser } from "../redux/slices/userSlice";
 import { toast } from "react-toastify";
+import { motion } from "framer-motion";
+import { useUser } from '../context/userContext';
 
 const Login = () => {
+
+  const {darkTheme} = useUser();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -14,9 +17,6 @@ const Login = () => {
   
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
-  // const {user, login,isAuthenticated} = useAuth();
-
   const [errors, setErrors] = useState({});
   const backendUrl = import.meta.env.VITE_APP_SERVER_URL;
   const [loading, setLoading] = useState(false);
@@ -31,12 +31,8 @@ const Login = () => {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.email.trim()) {
-      newErrors.email = "email is required";
-    }
-    if (!formData.password.trim()) {
-      newErrors.password = "Password is required";
-    }
+    if (!formData.email.trim()) newErrors.email = "Email is required";
+    if (!formData.password.trim()) newErrors.password = "Password is required";
     return newErrors;
   };
 
@@ -46,343 +42,186 @@ const Login = () => {
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
     } else {
-      //console.log("Form Data:", formData);
       setErrors({});
       setLoading(true);
       try {
-            let loginFunc = await fetch(`${backendUrl}user/login`,{
-              method: 'POST',
-              credentials: "include",
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify(formData)
-            });
+        let loginFunc = await fetch(`${backendUrl}user/login`, {
+          method: 'POST',
+          credentials: "include",
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
         
-            let res = await loginFunc.json();
-            if(res?.success)
-            {
-           
-              dispatch(addUser(res.user));
-              
-              navigate('/')
-              
-            }
-            else{
-              toast.error(res.message);
-            }
-        
-           } catch (e) {
-              //console.log("some error occured in login", e)    
-           }
-           finally{
-            setLoading(false);
-           }
-      
-      
-  
+        let res = await loginFunc.json();
+        if(res?.success) {
+          dispatch(addUser(res.user));
+          navigate('/');
+        } else {
+          toast.error(res.message);
+        }
+      } catch (e) {
+        toast.error("Login failed. Please try again.");
+      } finally {
+        setLoading(false);
+      }
     }
   };
-  
-    // useEffect(()=>{
-    //   //console.log("user from login : ", user);
-    //   if(isAuthenticated)
-    //       navigate('/dashboard');
-    // },[isAuthenticated,user])
 
   return (
-    <div className="font-[sans-serif] min-h-screen flex flex-col items-center justify-center py-6 px-4">
-      <div className="grid md:grid-cols-2 items-center gap-4 max-w-6xl w-full">
-        <div className="border border-gray-300 rounded-lg p-6 max-w-md shadow-[0_2px_22px_-4px_rgba(93,96,127,0.2)] max-md:mx-auto">
-          <form className="space-y-4" onSubmit={handleSubmit}>
-            <div className="mb-8">
-              <h3 className="text-gray-800 text-3xl font-extrabold">Sign in</h3>
-              <p className="text-gray-500 text-sm mt-4 leading-relaxed">
-                Sign in to your account and explore a world of possibilities. Your journey begins here.
+    <div className={`min-h-screen flex items-center justify-center p-6 
+      ${darkTheme 
+        ? 'bg-gray-900 text-gray-100' 
+        : 'bg-gradient-to-br from-purple-50 to-white text-gray-800'}`}>
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-6xl grid lg:grid-cols-2 gap-8 items-center">
+        
+        <motion.div 
+          initial={{ x: -50, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ delay: 0.2 }}
+          className={`p-8 rounded-2xl shadow-2xl backdrop-blur-sm 
+            ${darkTheme 
+              ? 'bg-gray-800/50 border border-gray-700' 
+              : 'bg-white/70 border border-purple-100'}`}>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <motion.div 
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="text-center mb-8">
+              <h2 className={`text-3xl font-bold mb-2 
+                ${darkTheme ? 'text-white' : 'text-purple-900'}`}>
+                Welcome Back
+              </h2>
+              <p className={`
+                ${darkTheme ? 'text-gray-400' : 'text-purple-600'}`}>
+                Sign in to continue your journey
               </p>
-            </div>
+            </motion.div>
 
-            <div>
-              <label className="text-gray-800 text-sm mb-2 block"> Email</label>
-              <div className="relative flex flex-col items-start">
+            <div className="space-y-4">
+              <motion.div 
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.4 }}
+                className="space-y-2">
+                <label className={`block text-sm font-medium 
+                  ${darkTheme ? 'text-gray-300' : 'text-purple-700'}`}>
+                  Email
+                </label>
                 <input
                   name="email"
                   type="email"
-                  className={`w-full text-sm text-gray-800 border px-4 py-3 rounded-lg outline-blue-600 ${
-                    errors.email ? "border-red-500" : "border-gray-300"
-                  }`}
-                  placeholder="Enter user name"
                   value={formData.email}
                   onChange={handleChange}
+                  className={`w-full px-4 py-3 rounded-lg transition-all duration-200
+                    ${darkTheme 
+                      ? 'bg-gray-700 border-gray-600 focus:border-purple-500 text-white' 
+                      : 'bg-purple-50 border-purple-100 focus:border-purple-500'}
+                    ${errors.email ? 'border-red-500' : ''}`}
+                  placeholder="Enter your email"
                 />
-                {errors.email && <span className="text-red-500 text-xs">{errors.email}</span>}
-              </div>
-            </div>
+                {errors.email && 
+                  <span className="text-red-500 text-xs">{errors.email}</span>
+                }
+              </motion.div>
 
-            <div>
-              <label className="text-gray-800 text-sm mb-2 block">Password</label>
-              <div className="relative flex flex-col items-start">
+              <motion.div 
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.5 }}
+                className="space-y-2">
+                <label className={`block text-sm font-medium 
+                  ${darkTheme ? 'text-gray-300' : 'text-purple-700'}`}>
+                  Password
+                </label>
                 <input
                   name="password"
                   type="password"
-                  className={`w-full text-sm text-gray-800 border px-4 py-3 rounded-lg outline-blue-600 ${
-                    errors.password ? "border-red-500" : "border-gray-300"
-                  }`}
-                  placeholder="Enter password"
                   value={formData.password}
                   onChange={handleChange}
+                  className={`w-full px-4 py-3 rounded-lg transition-all duration-200
+                    ${darkTheme 
+                      ? 'bg-gray-700 border-gray-600 focus:border-purple-500 text-white' 
+                      : 'bg-purple-50 border-purple-100 focus:border-purple-500'}
+                    ${errors.password ? 'border-red-500' : ''}`}
+                  placeholder="Enter your password"
                 />
-                {errors.password && <span className="text-red-500 text-xs">{errors.password}</span>}
-              </div>
+                {errors.password && 
+                  <span className="text-red-500 text-xs">{errors.password}</span>
+                }
+              </motion.div>
             </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div className="flex items-center">
+            <div className="flex items-center justify-between">
+              <label className="flex items-center">
                 <input
-                  id="remember-me"
-                  name="rememberMe"
                   type="checkbox"
-                  className="h-4 w-4 shrink-0 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  name="rememberMe"
                   checked={formData.rememberMe}
                   onChange={handleChange}
+                  className="w-4 h-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500"
                 />
-                <label htmlFor="remember-me" className="ml-3 block text-sm text-gray-800">
+                <span className={`ml-2 text-sm 
+                  ${darkTheme ? 'text-gray-300' : 'text-purple-700'}`}>
                   Remember me
-                </label>
-              </div>
-
-              <div className="text-sm">
-                <a href="#" className="text-blue-600 hover:underline font-semibold">
-                  Forgot your password?
-                </a>
-              </div>
+                </span>
+              </label>
+              <Link to="/forgot-password" 
+                className={`text-sm font-medium hover:underline
+                  ${darkTheme ? 'text-purple-400' : 'text-purple-600'}`}>
+                Forgot password?
+              </Link>
             </div>
 
-            <div className="!mt-8">
-            {/* <button
-            type="submit"
-            className={`w-full bg-pink-600 text-white py-2 rounded mt-4 hover:bg-pink-700 transition ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-            >
-            {loading ? (
-              <div className="inline-block h-6 w-6 animate-spin rounded-full border-b-2 border-gray-900 border-t-2 "></div>
-            ) : (
-              "Login"
-            )}
-            </button> */}
-              <button
-                type="submit"
-                className={`w-full shadow-xl py-3 px-4 text-sm tracking-wide rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-              >
-                 {loading ? (
-                  <div className="inline-block h-6 w-6 animate-spin rounded-full border-b-2 border-gray-900 border-t-2 "></div>
-                ) : (
-                  "Login"
-                )}
-              </button>
-            </div>
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              type="submit"
+              disabled={loading}
+              className={`w-full py-3 px-4 rounded-lg font-medium transition-all duration-200
+                ${darkTheme 
+                  ? 'bg-purple-600 hover:bg-purple-700 text-white' 
+                  : 'bg-purple-600 hover:bg-purple-700 text-white'}
+                ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+              {loading ? (
+                <div className="flex items-center justify-center">
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"/>
+                </div>
+              ) : (
+                'Sign In'
+              )}
+            </motion.button>
 
-            <p className="text-sm !mt-8 text-center text-gray-800">
+            <p className={`text-center text-sm
+              ${darkTheme ? 'text-gray-400' : 'text-purple-600'}`}>
               Don't have an account?{" "}
-              <Link to={'/signup'} className="text-blue-600 font-semibold hover:underline ml-1 whitespace-nowrap">
-                Register here
+              <Link to="/signup" 
+                className={`font-medium hover:underline
+                  ${darkTheme ? 'text-purple-400' : 'text-purple-700'}`}>
+                Sign up now
               </Link>
             </p>
           </form>
-        </div>
-        <div className="lg:h-[400px] md:h-[300px] max-md:mt-8">
+        </motion.div>
+
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.6 }}
+          className="hidden lg:block">
           <img
-            src="https://readymadeui.com/login-image.webp"
-            className="w-full h-full max-md:w-4/5 mx-auto block object-cover"
-            alt="Dining Experience"
+            src={`login-lock${darkTheme ? '' : '-light'}.png`}
+            className="w-full h-[600px] object-cover rounded-2xl shadow-2xl"
+            alt="Login illustration"
           />
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </div>
   );
 };
 
 export default Login;
-
-
-// import React, { useState } from "react";
-// import { useDispatch } from "react-redux";
-// import { Link, useNavigate } from "react-router-dom";
-// import { addUser } from "../redux/slices/userSlice";
-
-
-// function Login() {
-
-//   const navigate = useNavigate();
-
-//   const [loading,setLoading] = useState(false);
-  
-//   const dispatch = useDispatch();
-//   const [formData, setFormData] = useState({
-//     email: "",
-//     password: "", 
-//   });
-  
-
-//   const handleChange = (e) => {
-//     const { name, value } = e.target;
-//     setFormData((prevState) => ({
-//       ...prevState,
-//       [name]: value,
-//     }));
-//   };
-
-//   const handleSubmit = async(e) => {
-//     setLoading(true);
-//     e.preventDefault();
-//     //console.log("Form Data:", formData);
-    
-
-    
-
-
-
-//    try {
-//     let loginFunc = await fetch(`${'http://localhost:8759/api/'}user/login`,{
-//       method: 'POST',
-//       credentials: "include",
-//       headers: {
-//         'Content-Type': 'application/json'
-//       },
-//       body: JSON.stringify(formData)
-//     });
-
-//     let res = await loginFunc.json();
-//     if(res?.success)
-//     {
-//       // redux mai store krna h user ko
-//       //console.log(res.user);
-//       dispatch(addUser(res.user));
-//       // localStorage.setItem('authToken', res?.accessToken)
-//       navigate('/')
-//       //console.log('hello ji')
-//     }
-//     else{
-//       //console.log(res.message);
-//     }
-
-//    } catch (e) {
-//       //console.log("some error occured in login", e)    
-//    }
-//    finally{
-//     setLoading(false);
-//    }
-
-    
-//   };
-
-//   return (
-//     <div className="bg-pink-100 h-screen w-full flex justify-center flex-col items-center z-40 absolute">
-
-//         <div className="text-center font-bold text-3xl w-fit m-3  ">Enter details to Login</div>
-//       <form
-//         onSubmit={handleSubmit}
-//         className="max-w-md mx-auto bg-pink-300 p-10 gap-5 rounded-md border-2 border-black "
-//       >
-        
-//         <div className="relative z-0 w-full mb-5 group">
-//           <input
-//             type="email"
-//             name="email"
-//             value={formData.email}
-//             onChange={handleChange}
-//             className="block py-2.5 px-0 w-full text-lg text-black bg-transparent border-0 border-b-2 border-black focus:outline-none focus:ring-0 focus:border-white peer"
-//             placeholder=" "
-//             required
-//           />
-//           <label
-//             htmlFor="email"
-//             className="peer-focus:font-medium absolute text-lg text-black duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-//           >
-//             Enter Email
-//           </label>
-//         </div>
-//         <div className="relative z-0 w-full mb-5 group">
-//           <input
-//             type="password"
-//             name="password"
-//             value={formData.password}
-//             onChange={handleChange}
-//             className="block py-2.5 px-0 w-full text-lg text-black bg-transparent border-0 border-b-2 border-black focus:outline-none focus:ring-0 focus:border-white peer"
-//             placeholder=" "
-//             required
-//           />
-//           <label
-//             htmlFor="password"
-//             className="peer-focus:font-medium absolute text-lg text-black duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-//           >
-//             Enter Password
-//           </label>
-//         </div>
-      
-//         {/* <div className="grid md:grid-cols-2 md:gap-6">
-//           <div className="relative z-0 w-full mb-5 group">
-//             <input
-//               type="tel"
-//               name="phone"
-//               value={formData.phone}
-//               onChange={handleChange}
-//               className="block py-2.5 px-0 w-full text-lg text-black bg-transparent border-0 border-b-2 border-black focus:outline-none focus:ring-0 focus:border-white peer"
-//               placeholder=" "
-//               required
-//             />
-//             <label
-//               htmlFor="phone"
-//               className="peer-focus:font-medium absolute text-lg text-black duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-//             >
-//               Phone number (123-456-7890)
-//             </label>
-//           </div>
-//           <div className="relative z-0 w-full mb-5 group">
-//             <input
-//               type="text"
-//               name="company"
-//               value={formData.company}
-//               onChange={handleChange}
-//               className="block py-2.5 px-0 w-full text-lg text-black bg-transparent border-0 border-b-2 border-black focus:outline-none focus:ring-0 focus:border-white peer"
-//               placeholder=" "
-//               required
-//             />
-//             <label
-//               htmlFor="company"
-//               className="peer-focus:font-medium absolute text-lg text-black duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-//             >
-//               Company (Ex. Google)
-//             </label>
-//           </div>
-//         </div> */}
-//        <div className="flex flex-col space-y-2 mt-12">
-//        <button
-//         type="submit"
-//         className={`w-full bg-pink-600 text-white py-2 rounded mt-4 hover:bg-pink-700 transition ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-//       >
-//         {loading ? (
-//           <div className="inline-block h-6 w-6 animate-spin rounded-full border-b-2 border-gray-900 border-t-2 "></div>
-//         ) : (
-//           "Login"
-//         )}
-//       </button>
-
-//         <div className="flex justify-between space-x-2">
-            
-//             <span>Don't have an account?</span>
-//             <Link to={'/otp'} className="text-blue-500 hover:underline">forgot password</Link>
-
-//         </div>
-//         <Link
-//             to={'/signup'}
-//             className="text-blue-500 hover:bg-pink-200  focus:ring-4 focus:outline-none focus:ring-pink-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center"
-//         >
-//           Sign Up
-//         </Link>
-//        </div>
-//       </form>
-//     </div>
-//   );
-// }
-
-// export default Login;
