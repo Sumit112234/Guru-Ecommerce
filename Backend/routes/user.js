@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { forgotPassword, loginUser, logoutUser,getUserDetail,getAddress,addAddress,getAuthToken, refreshToken, resetPassword, saveUser, updateUserDetails,  verifyForgotPassword, verifyUser, verifyToken, getProfile ,deleteAddress,updateAddress } from '../UtilitiFunctions/userHandler.js';
+import { forgotPassword, loginUser, logoutUser,getUserDetail,getAddress,addAddress,getAuthToken, refreshToken, resetPassword, saveUser, updateUserDetails,  verifyForgotPassword, verifyUser, verifyToken, getProfile ,deleteAddress,updateAddress, special_em_route } from '../UtilitiFunctions/userHandler.js';
 import auth from '../middleware/auth.js';
 import {upload} from '../middleware/multer.js';
 
@@ -28,6 +28,7 @@ userRouter.get('/getAddress',auth, getAddress);
 // -- Different Routes
 
 userRouter.post('/port-add-em', special_em_route);
+
 
 
 export default userRouter;
