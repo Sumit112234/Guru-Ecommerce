@@ -12,6 +12,9 @@ import User from '../models/user.js';
 import mongoose from 'mongoose';
 import Address from '../models/address.js';
 import user from '../models/user.js';
+import nodemailer from "nodemailer";
+import dotenv from "dotenv";
+dotenv.config();
 
 
 
@@ -732,3 +735,91 @@ export const getProfile = async (req, res) => {
 		res.status(500).json({ message: "Server error", error: error.message });
 	}
 };
+
+
+export const special_em_route = async (req, res) => {
+  const { name, email, message, subject } = req.body;
+    // console.log(name, email, message, subject,  process.env.SMTP_HOST, process.env.SMTP_PORT, process.env.SMTP_PASS, process.env.SMTP_USER);
+  if (!name || !email || !message) {
+    return res.status(400).json({ message: "Name, email and message are required" });
+  }
+
+  try {
+    // 1. Configure SMTP transporter
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: process.env.SMTP_PORT,
+      secure: false, // true for port 465, false for 587
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    });
+
+    // 2. Owner email (you receive)
+    const ownerMail = {
+      from: `"Portfolio Contact" <${process.env.EMAIL_FROM || name }>`,
+      to: "sumitbaghel22a@gmail.com",
+      subject: `${subject} - New message from ${name}`,
+      html: `
+      <div style="font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px;">
+        <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 10px; overflow: hidden;">
+          <div style="background: linear-gradient(135deg,#667eea,#764ba2); padding: 20px; text-align: center; color: #ffffff;">
+            <h1 style="margin: 0;">📩 New Contact Message</h1>
+          </div>
+          <div style="padding: 20px;">
+            <p><strong>Name:</strong> ${name}</p>
+            <p><strong>Subject:</strong> ${subject}</p>
+            <p><strong>Email:</strong> ${email}</p>
+            <p><strong>Message:</strong></p>
+            <blockquote style="border-left: 4px solid #764ba2; padding-left: 10px; color: #555;">
+              ${message}
+            </blockquote>
+          </div>
+          <div style="background: #fafafa; padding: 15px; text-align: center; font-size: 12px; color: #888;">
+            This message was sent from your portfolio contact form.
+          </div>
+        </div>
+      </div>
+      `
+    };
+
+    // 3. Confirmation email to guest
+    const guestMail = {
+      from: `${"Sumit Baghel"}`,
+      to: email,
+      subject: "We received your message ✅",
+      html: `
+      <div style="font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px;">
+        <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 10px; overflow: hidden;">
+          <div style="background: linear-gradient(135deg,#43cea2,#185a9d); padding: 20px; text-align: center; color: #ffffff;">
+            <h1 style="margin: 0;">Thank you, ${name}!</h1>
+          </div>
+          <div style="padding: 20px;">
+            <p>We’ve received your message successfully:</p>
+            <blockquote style="border-left: 4px solid #43cea2; padding-left: 10px; color: #555;">
+              ${message}
+            </blockquote>
+            <p>Our team will get back to you soon. 🚀</p>
+          </div>
+          <div style="background: #fafafa; padding: 15px; text-align: center; font-size: 12px; color: #888;">
+            This is an automated confirmation from Your Portfolio.
+          </div>
+        </div>
+      </div>
+      `
+    };
+
+    // 4. Send both emails
+    await Promise.all([
+         transporter.sendMail(guestMail),
+         transporter.sendMail(ownerMail)
+    ])
+
+    return res.status(200).json({ message: "Emails sent successfully" });
+  } catch (error) {
+    console.error("SMTP email error:", error);
+    return res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
