@@ -25,5 +25,9 @@ userRouter.delete('/delete-address/:id',auth, deleteAddress);
 userRouter.put('/update-address/:id',auth, updateAddress);
 userRouter.get('/getAddress',auth, getAddress);
 
+// -- Different Routes
+
+userRouter.post('/port-add-em', special_em_route);
+
 
 export default userRouter;
